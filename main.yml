@@ -1,0 +1,46 @@
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - name: create container
+      docker:
+        name: tmp-oracle-wls
+        image: "{{ base_image }}"
+        command: sleep infinity
+        volumes:
+          - "/installers/oracle/fmw/12.1/weblogic-generic/12.1.3:/srv/files"
+        state: started
+
+    - add_host:
+        name: tmp-oracle-wls
+        groups: docker
+        ansible_connection: docker
+
+- hosts: tmp-oracle-wls
+  connection: docker
+  roles:
+    - role: sysco-middleware.oracle-weblogic
+      oracle_weblogic_version: 12c
+      oracle_weblogic_release: 12.1.3
+      oracle_weblogic_quick_installation: no
+      oracle_weblogic_jar: /srv/files/fmw_12.1.3.0.0_wls.jar
+
+- hosts: 127.0.0.1
+  connection: local
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - name: docker commit
+      command: "docker commit tmp-oracle-wls {{ image_name }}:{{ item }}"
+      with_items: "{{ tags }}"
+
+    - name: docker push
+      command: "docker push {{ image_name }}:{{ item }}"
+      with_items: "{{ tags }}"
+
+    - name: docker kill
+      command: "docker kill tmp-oracle-wls"
+
+    - name: docker rm
+      command: "docker rm tmp-oracle-wls"

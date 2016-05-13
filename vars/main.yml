@@ -1,0 +1,4 @@
+base_image: syscomiddleware/oracle-jdk:centos-8.92
+image_name: syscomiddleware/oracle-weblogic-
+tags:
+  - generic-centos-12.1.3
