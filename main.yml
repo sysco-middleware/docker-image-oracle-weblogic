@@ -22,7 +22,6 @@
   roles:
     - role: sysco-middleware.oracle-weblogic
       oracle_weblogic_version: 12c
-      oracle_weblogic_release: 12.1.3
       oracle_weblogic_quick_installation: no
       oracle_weblogic_jar: /srv/files/fmw_12.1.3.0.0_wls.jar
 
@@ -35,12 +34,13 @@
       command: "docker commit tmp-oracle-wls {{ image_name }}:{{ item }}"
       with_items: "{{ tags }}"
 
-    - name: docker push
-      command: "docker push {{ image_name }}:{{ item }}"
-      with_items: "{{ tags }}"
-
     - name: docker kill
       command: "docker kill tmp-oracle-wls"
 
     - name: docker rm
       command: "docker rm tmp-oracle-wls"
+
+    # @todo wait for private repository
+    # - name: docker push
+    #   command: "docker push {{ image_name }}:{{ item }}"
+    #   with_items: "{{ tags }}"
